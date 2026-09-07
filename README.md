@@ -66,6 +66,8 @@ Market Risk Briefing Copilot | Personal Project
 • Built a Streamlit-based cross-asset market dashboard integrating equity, rates, FX proxy and commodity data to monitor market movements, rolling volatility and asset correlations.
 • Developed a portfolio risk module calculating historical VaR, Expected Shortfall, max drawdown and scenario-based stress losses to support risk-aware decision-making.
 • Designed an AI briefing module that converts market data and financial news sentiment into structured morning briefs, including market overview, risk alerts and client talking points.
+• Added a scheduled GitHub Actions data pipeline to refresh cached market data daily and maintain demo reliability  
+when live market APIs are unavailable. 
 ```
 
 ## Disclaimer
