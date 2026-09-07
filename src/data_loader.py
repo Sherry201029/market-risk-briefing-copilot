@@ -1,11 +1,15 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Iterable
 
 import numpy as np
 import pandas as pd
+
+
+DATA_DIR = Path(__file__).resolve().parents[1] / "data"
+CACHED_MARKET_DATA_PATH = DATA_DIR / "market_prices.csv"
 
 
 def generate_sample_prices(tickers: Iterable[str], periods: int = 252, seed: int = 42) -> pd.DataFrame:
@@ -28,7 +32,7 @@ def generate_sample_prices(tickers: Iterable[str], periods: int = 252, seed: int
 
 
 def load_market_data(tickers: Iterable[str], period: str = "1y") -> tuple[pd.DataFrame, str]:
-    """Load adjusted close data from yfinance, falling back to sample data."""
+    """Load adjusted close data from yfinance, then cached GitHub data, then sample data."""
     tickers = [ticker.strip() for ticker in tickers if ticker.strip()]
     if not tickers:
         raise ValueError("At least one ticker is required")
@@ -53,9 +57,41 @@ def load_market_data(tickers: Iterable[str], period: str = "1y") -> tuple[pd.Dat
             prices = pd.concat([prices, fallback], axis=1)
         return prices[tickers], "live_yfinance"
     except Exception:
+        cached_prices = load_cached_market_data(tickers, period=period)
+        if not cached_prices.empty:
+            return cached_prices, "cached_github_data"
         return generate_sample_prices(tickers), "sample_offline"
 
 
+def load_cached_market_data(tickers: Iterable[str], period: str = "1y") -> pd.DataFrame:
+    """Load market prices committed under data/ and trim them to the requested lookback."""
+    if not CACHED_MARKET_DATA_PATH.exists():
+        return pd.DataFrame()
+
+    tickers = [ticker.strip() for ticker in tickers if ticker.strip()]
+    prices = pd.read_csv(CACHED_MARKET_DATA_PATH, parse_dates=["date"]).set_index("date")
+    available = [ticker for ticker in tickers if ticker in prices.columns]
+    if not available:
+        return pd.DataFrame()
+
+    prices = prices[available].dropna(how="all").ffill()
+    if prices.empty:
+        return pd.DataFrame()
+
+    lookback_days = {"3mo": 92, "6mo": 183, "1y": 366, "2y": 732}.get(period)
+    if lookback_days:
+        cutoff = prices.index.max() - pd.Timedelta(days=lookback_days)
+        prices = prices.loc[prices.index >= cutoff]
+
+    missing = [ticker for ticker in tickers if ticker not in prices.columns]
+    if missing:
+        fallback = generate_sample_prices(missing, periods=len(prices))
+        fallback.index = prices.index
+        prices = pd.concat([prices, fallback], axis=1)
+
+    return prices[tickers]
+
+
 def load_sample_news() -> pd.DataFrame:
-    path = Path(__file__).resolve().parents[1] / "data" / "sample_news.csv"
+    path = DATA_DIR / "sample_news.csv"
     return pd.read_csv(path, parse_dates=["date"])
