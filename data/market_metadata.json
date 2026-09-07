@@ -1,0 +1,20 @@
+{
+  "updated_at_utc": "2026-09-07T09:42:01+00:00",
+  "source": "live_yfinance",
+  "tickers": [
+    "SPY",
+    "QQQ",
+    "DIA",
+    "EWH",
+    "TLT",
+    "IEF",
+    "UUP",
+    "GLD",
+    "USO",
+    "^VIX"
+  ],
+  "rows": 504,
+  "start_date": "2024-09-05",
+  "end_date": "2026-09-07",
+  "purpose": "Daily cached market data for the AI Market Pulse & Risk Briefing Dashboard."
+}
