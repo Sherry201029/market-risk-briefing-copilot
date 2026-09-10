@@ -1,5 +1,5 @@
 {
-  "updated_at_utc": "2026-09-09T03:35:48+00:00",
+  "updated_at_utc": "2026-09-10T03:33:20+00:00",
   "source": "live_yfinance",
   "tickers": [
     "SPY",
@@ -13,8 +13,8 @@
     "USO",
     "^VIX"
   ],
-  "rows": 503,
+  "rows": 504,
   "start_date": "2024-09-09",
-  "end_date": "2026-09-08",
+  "end_date": "2026-09-09",
   "purpose": "Daily cached market data for the AI Market Pulse & Risk Briefing Dashboard."
 }
